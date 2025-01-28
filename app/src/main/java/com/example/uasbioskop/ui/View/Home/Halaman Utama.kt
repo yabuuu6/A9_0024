@@ -91,7 +91,7 @@ fun HalamanUtamaScreen(
         }
     ) {inner->
         Column(
-            modifier = Modifier.padding(inner).offset(y = -0.dp)
+            modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.linearGradient(
@@ -135,21 +135,22 @@ fun CustomTopNavbar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .size(120.dp)
-            .offset(y = 20.dp)
             .clip(shape = RoundedCornerShape(bottomStart = 25.dp, bottomEnd = 25.dp))
             .background(Color(0xFF2B2B2B)) // Warna Navbar
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
         Box(
             modifier = Modifier
-                .width(120.dp)
+                .width(200.dp)
                 .clickable { onMenuClick() },
             contentAlignment = Alignment.Center
         ) {
-            Column {
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth()
+            ){
                 Text(
                     text = "Selamat datang",
                     color = Color.White,
@@ -157,7 +158,7 @@ fun CustomTopNavbar(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Buya kun",
+                    text = "Yabuuu",
                     color = Color.White,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium
@@ -174,7 +175,7 @@ fun CustomTopNavbar(
         // Search Icon
         Box(
             modifier = Modifier
-                .size(36.dp)
+                .size(38.dp)
                 .clip(CircleShape)
                 .background(Color.White)
                 .clickable { onSearchSubmit(searchQuery.value.text) },
@@ -510,7 +511,7 @@ fun CustomBottomBar(
     BottomAppBar(
         containerColor = Color(0xFF8D61D9),
         contentColor = Color.White,
-        tonalElevation = 8.dp
+        tonalElevation = 9.dp
     ) {
         Row(
             modifier = Modifier
@@ -548,7 +549,7 @@ fun IconButtonWithRoundedBackground(
 ) {
     Box(
         modifier = Modifier
-            .size(64.dp) // Ukuran kotak ikon
+            .size(65.dp) // Ukuran kotak ikon
             .clip(RoundedCornerShape(16.dp)) // Membuat sudut membulat
             .background(
                 color = Color(0xFF8D61D9),
