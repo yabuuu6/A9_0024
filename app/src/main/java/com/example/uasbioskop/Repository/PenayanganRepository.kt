@@ -18,7 +18,7 @@ interface PenayanganRepository {
 
     suspend fun getPenayanganById(idPenayangan: Int): Penayangan
 
-    suspend fun getPenayanganOption(): List<String>
+    suspend fun getPenayanganOption(): List<Penayangan>
 
 }
 
@@ -54,12 +54,8 @@ class NetworkPenayanganRepository(
         }
     }
 
-    override suspend fun getPenayanganOption(): List<String> {
-        val response = penayanganApiService.getAllPenayangan()
-        if (!response.status) {
-            throw IOException("Failed to fetch films: ${response.message}")
-        }
-        return response.data.map { "${it.idPenayangan}" }
+    override suspend fun getPenayanganOption(): List<Penayangan> {
+        return penayanganApiService.getAllPenayangan().data
     }
 
     override suspend fun getPenayanganById(idPenayangan: Int): Penayangan =

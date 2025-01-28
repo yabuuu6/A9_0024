@@ -1,5 +1,6 @@
-package com.example.uasbioskop.ui.View.Tiket
+package com.example.uasbioskop.ui.View.Film
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,12 +11,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -37,85 +41,88 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.uasbioskop.model.Tiket
+import com.example.uasbioskop.R
+import com.example.uasbioskop.model.Film
 import com.example.uasbioskop.ui.Navigation.DestinasiNavigasi
-import com.example.uasbioskop.ui.ViewModel.Tiket.HomeTiketViewModel
+import com.example.uasbioskop.ui.ViewModel.Home.HomeViewModel
 import com.example.uasbioskop.ui.viewmodel.PenyediaViewModel
 
-object DestinasiTiketHome : DestinasiNavigasi {
-    override val route = "home_tiket"
-    override val titleRes = "Home Tiket"
+object DestinasiHome : DestinasiNavigasi {
+    override val route = "Home Film"
+    override val titleRes = "Home Film"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TiketScreen(
-    navigateHomeBack: () -> Unit,
-    navigateToTiketEntry: () -> Unit,
+fun HomeScreen(
+    navigateToItemEntry: () -> Unit,
     modifier: Modifier = Modifier,
     onDetailClick:(Int) -> Unit = {},
-    viewModel: HomeTiketViewModel = viewModel(factory = PenyediaViewModel.Factory)
+    navigateHomeBack: () -> Unit,
+    viewModel: HomeViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ){
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = DestinasiTiketHome.titleRes,
+                title = DestinasiHome.titleRes,
                 canNavigateBack = true,
-                navigateUp = navigateHomeBack,
                 scrollBehavior = scrollBehavior,
+                navigateUp = navigateHomeBack,
                 onRefresh = {
-                    viewModel.getTiket()
+                    viewModel.getFilms()
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = navigateToTiketEntry,
+                onClick = navigateToItemEntry,
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(18.dp)
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Tiket")
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Film")
             }
         },
 
-        ) { innerPadding ->
-        TiketStatus(
-            tiket = viewModel.tiketList,
+    ) { innerPadding ->
+        FilmStatus(
+            films = viewModel.filmList,
             modifier = Modifier.padding(innerPadding),
             onDetailClick = onDetailClick,
             onDeleteClick = {
-                viewModel.deleteTiket(it.idTiket)
-                viewModel.getTiket()
+                viewModel.deleteFilm(it.idFilm)
+                viewModel.getFilms()
             }
         )
     }
 }
 
 @Composable
-fun TiketStatus(
-    tiket: List<Tiket>,
+fun FilmStatus(
+    films: List<Film>,
     modifier: Modifier = Modifier,
-    onDeleteClick:(Tiket) -> Unit = {},
+    onDeleteClick:(Film) -> Unit = {},
     onDetailClick: (Int) -> Unit
 ){
-    if (tiket.isEmpty()) {
+    if (films.isEmpty()) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(text = "Tidak ada data Tiket")
+            Text(text = "Tidak ada data Film")
         }
     } else {
-        TiketLayout(
-            tiket = tiket,
+        FilmLayout(
+            films = films,
             modifier = modifier.fillMaxWidth(),
             onDetailClick = {
-                onDetailClick(it.idTiket)
+                onDetailClick(it.idFilm)
             },
             onDeleteClick = {
                 onDeleteClick(it)
@@ -125,25 +132,25 @@ fun TiketStatus(
 }
 
 @Composable
-fun TiketLayout(
-    tiket: List<Tiket>,
+fun FilmLayout(
+    films: List<Film>,
     modifier: Modifier = Modifier,
-    onDetailClick: (Tiket) -> Unit,
-    onDeleteClick: (Tiket) -> Unit = {}
+    onDetailClick: (Film) -> Unit,
+    onDeleteClick: (Film) -> Unit = {}
 ){
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(tiket) { tiket ->
-            TiketCard(
-                tiket = tiket,
+        items(films) { film ->
+            FilmCard(
+                film = film,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onDetailClick(tiket) },
+                    .clickable { onDetailClick(film) },
                 onDeleteClick = {
-                    onDeleteClick(tiket)
+                    onDeleteClick(film)
                 }
             )
         }
@@ -151,10 +158,10 @@ fun TiketLayout(
 }
 
 @Composable
-fun TiketCard(
-    tiket: Tiket,
+fun FilmCard(
+    film: Film,
     modifier: Modifier = Modifier,
-    onDeleteClick: (Tiket) -> Unit = {}
+    onDeleteClick: (Film) -> Unit = {}
 ) {
     var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
     Card(
@@ -172,10 +179,9 @@ fun TiketCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = tiket.judulFilm.toString(),
+                    text = film.judulFilm,
                     style = MaterialTheme.typography.titleLarge
                 )
-
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { deleteConfirmationRequired = true }) {
                     Icon(
@@ -183,17 +189,13 @@ fun TiketCard(
                         contentDescription = null,
                     )
                 }
+                Text(
+                    text = film.durasi.toString() + " menit",
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
             Text(
-                text = tiket.statusPembayaran,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = tiket.totalHarga.toString(),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = tiket.jumlahTiket.toString(),
+                text = film.genre,
                 style = MaterialTheme.typography.titleMedium
             )
         }
@@ -202,7 +204,7 @@ fun TiketCard(
         DeleteConfirmationDialog(
             onDeleteConfirm = {
                 deleteConfirmationRequired = false
-                onDeleteClick(tiket)
+                onDeleteClick(film)
             },
             onDeleteCancel =  {
                 deleteConfirmationRequired = false

@@ -17,6 +17,8 @@ data class Tiket(
     val statusPembayaran: String,
     @SerialName("harga_tiket")
     val hargaTiket: Int? = null,
+    @SerialName("judul_film")
+    val judulFilm :String? = null,
 )
 
 
